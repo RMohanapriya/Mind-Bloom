@@ -1,7 +1,7 @@
 // mindbloom-backend/middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
-const User = require('../models/User'); // Import the User model
+const User = require('../models/User');
 
 const protect = asyncHandler(async (req, res, next) => {
   let token;
@@ -14,7 +14,7 @@ const protect = asyncHandler(async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Get user from the token
+      // Get user from the token and attach it to the request object
       req.user = await User.findById(decoded.id).select('-password');
 
       next();

@@ -10,16 +10,28 @@ const userRoutes = require('./routes/userRoutes');
 
 // Initialize the app
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000; // Render uses port 10000 by default
 
 // Middleware
 app.use(express.json()); // Allows parsing of JSON request bodies
-app.use(cors()); // Enables Cross-Origin Resource Sharing
 
-// Connect to MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI)
-.then(() => console.log('MongoDB connected successfully!'))
-.catch(err => console.error('MongoDB connection error:', err));
+// Configure CORS to only allow your Netlify frontend URL
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://our-mind-bloom.netlify.app'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+}));
 
 // Define your API routes
 app.use('/api/auth', authRoutes);  // All authentication routes start with /api/auth
