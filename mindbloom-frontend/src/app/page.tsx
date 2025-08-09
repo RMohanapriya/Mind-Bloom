@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -16,9 +15,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Flower2, Loader2 } from "lucide-react";
-import { auth } from "@/lib/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+// REMOVED: Firebase authentication imports
+// import { auth } from "@/lib/firebase";
+// import { signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,13 +31,38 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard");
+      // Replaced Firebase with a fetch call to your custom backend
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Handle successful login
+        localStorage.setItem('token', data.token);
+        toast({
+          title: "Login Successful",
+          description: "Welcome back!",
+        });
+        router.push("/dashboard");
+      } else {
+        // Handle login failure from the backend
+        toast({
+          title: "Login Failed",
+          description: data.message || "Invalid email or password.",
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
+      // Handle network or other errors
+      console.error('API call failed:', error);
       toast({
-        title: "Sign In Failed",
-        description: error.message,
+        title: "Login Failed",
+        description: "Could not connect to the server.",
         variant: "destructive",
       });
     } finally {
@@ -73,11 +99,11 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input 
-                  id="password" 
-                  type="password" 
-                  required 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                    id="password" 
+                    type="password" 
+                    required 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
             </CardContent>

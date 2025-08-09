@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -17,8 +16,9 @@ import {
 import { Bot, BookOpen, BarChart, Flower2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRouter, usePathname } from 'next/navigation';
-import { auth } from '@/lib/firebase';
-import { signOut } from 'firebase/auth';
+// REMOVED: Firebase authentication imports
+// import { auth } from '@/lib/firebase';
+// import { signOut } from 'firebase/auth';
 
 export default function DashboardLayout({
   children,
@@ -29,7 +29,8 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const handleLogout = async () => {
-    await signOut(auth);
+    // Replaced Firebase with a token-based logout
+    localStorage.removeItem('token');
     router.push('/');
   }
 

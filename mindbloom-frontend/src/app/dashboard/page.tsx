@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect, useTransition } from "react";
@@ -23,8 +22,9 @@ import { useToast } from "@/hooks/use-toast";
 import type { AnalyzeSentimentOutput } from "@/ai/flows/analyze-sentiment";
 import { performSentimentAnalysis } from "./actions";
 import { addJournalEntry, getJournalEntries, type JournalEntry } from "@/services/journal";
-import { auth } from "@/lib/firebase";
-import { onAuthStateChanged, type User } from "firebase/auth";
+// REMOVED: Firebase authentication imports
+// import { auth } from "@/lib/firebase";
+// import { onAuthStateChanged, type User } from "firebase/auth";
 
 import {
   BarChart,
@@ -41,7 +41,10 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
+import jwt, { JwtPayload } from 'jsonwebtoken'; // Add JWT library to decode token
 
+// You'll need to install this library: npm install jsonwebtoken @types/jsonwebtoken
+// It's client-side only for decoding, not for security.
 
 export default function DashboardPage() {
   const { toast } = useToast();
@@ -49,26 +52,31 @@ export default function DashboardPage() {
   const [journalEntry, setJournalEntry] = useState("");
   const [journalHistory, setJournalHistory] = useState<JournalEntry[]>([]);
   const [currentAnalysis, setCurrentAnalysis] = useState<AnalyzeSentimentOutput | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [userId, setUserId] = useState<string | null>(null); // Use a simple string for the user ID
   const [loadingHistory, setLoadingHistory] = useState(true);
 
   const [isAnalyzing, startAnalyzingTransition] = useTransition();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-      } else {
-        router.push("/"); // Redirect to login if not authenticated
+    // Replaced Firebase with a token-based authentication check
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken = jwt.decode(token) as JwtPayload;
+        setUserId(decodedToken.id);
+      } catch (error) {
+        console.error('Invalid token:', error);
+        router.push("/");
       }
-    });
-    return () => unsubscribe();
+    } else {
+      router.push("/"); // Redirect to login if no token
+    }
   }, [router]);
 
   useEffect(() => {
-    if (user) {
+    if (userId) {
       setLoadingHistory(true);
-      getJournalEntries(user.uid)
+      getJournalEntries(userId)
         .then(entries => {
             setJournalHistory(entries);
             if (entries.length > 0) {
@@ -86,7 +94,7 @@ export default function DashboardPage() {
             setLoadingHistory(false);
         });
     }
-  }, [user, toast]);
+  }, [userId, toast]);
 
 
   const handleAnalyze = () => {
@@ -98,7 +106,7 @@ export default function DashboardPage() {
       });
       return;
     }
-    if (!user) {
+    if (!userId) {
         toast({
             title: "Not signed in",
             description: "You must be signed in to save an entry.",
@@ -120,7 +128,7 @@ export default function DashboardPage() {
         const newDbEntry = {
             text: journalEntry,
             analysis: result,
-            userId: user.uid,
+            userId: userId,
         };
 
         const newEntryId = await addJournalEntry(newDbEntry);
@@ -177,7 +185,7 @@ export default function DashboardPage() {
                 onChange={(e) => setJournalEntry(e.target.value)}
                 className="min-h-[150px] text-base"
               />
-              <Button onClick={handleAnalyze} disabled={isAnalyzing || !user} className="mt-4 w-full">
+              <Button onClick={handleAnalyze} disabled={isAnalyzing || !userId} className="mt-4 w-full">
                 {isAnalyzing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Analyze Entry
               </Button>
@@ -224,7 +232,7 @@ export default function DashboardPage() {
                           <Sparkles className="h-5 w-5 text-primary" />
                           Positive Affirmation
                         </h4>
-                         <p className="text-muted-foreground italic">"{currentAnalysis.positiveAffirmation}"</p>
+                          <p className="text-muted-foreground italic">"{currentAnalysis.positiveAffirmation}"</p>
                       </div>
                     )}
 

@@ -1,4 +1,4 @@
-# netlify.toml
+# mindbloom-frontend/netlify.toml
 [build]
   command = "npm run build"
   publish = ".next"
