@@ -1,29 +1,48 @@
-
 "use server";
 
-import {
-  analyzeSentiment,
-  type AnalyzeSentimentInput,
-  type AnalyzeSentimentOutput,
-} from "@/ai/flows/analyze-sentiment";
-import {
-  contextualChatbot,
-  type ContextualChatbotInput,
-  type ContextualChatbotOutput,
-} from "@/ai/flows/contextual-chatbot";
+import type { AnalyzeSentimentOutput } from "@/ai/flows/analyze-sentiment";
+import { fetch } from 'next/dist/compiled/@edge-runtime/primitives/fetch';
 
 export async function performSentimentAnalysis(
-  input: AnalyzeSentimentInput
+  input: { journalEntry: string; userHistory: string }
 ): Promise<AnalyzeSentimentOutput> {
-  // Add a delay to simulate network latency for better UX
-  // A 1-second delay was here, but it's removed for production to improve performance
-  return await analyzeSentiment(input);
+  const token = (await import('jsonwebtoken')).sign({}, 'fake-secret'); // This is a temporary placeholder.
+  
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/ai/analyze-sentiment`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to perform sentiment analysis.');
+  }
+
+  return response.json() as Promise<AnalyzeSentimentOutput>;
 }
 
 export async function getChatbotResponse(
-  input: ContextualChatbotInput
-): Promise<ContextualChatbotOutput> {
-  // Add a delay to simulate network latency for better UX
-  // A 1-second delay was here, but it's removed for production to improve performance
-  return await contextualChatbot(input);
+  input: { messages: { role: string; content: string }[] }
+): Promise<{ response: string }> {
+  const token = (await import('jsonwebtoken')).sign({}, 'fake-secret'); // This is a temporary placeholder.
+  
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/ai/contextual-chatbot`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(input),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to get chatbot response.');
+  }
+
+  return response.json() as Promise<{ response: string }>;
 }
