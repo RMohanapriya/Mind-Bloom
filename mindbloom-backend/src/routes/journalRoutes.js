@@ -2,8 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const asyncHandler = require('express-async-handler');
-const protect = require('./src/middleware/authMiddleware');
-const JournalEntry = require('./src/models/JournalEntry'); 
+const { protect } = require('../middleware/authMiddleware'); // Corrected path and import syntax
+const JournalEntry = require('../models/JournalEntry'); // Correct path
 
 router.post('/', protect, asyncHandler(async (req, res) => {
     const { text, analysis } = req.body;
