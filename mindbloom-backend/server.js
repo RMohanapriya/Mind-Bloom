@@ -4,16 +4,17 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-// Import your route files
-const authRoutes = require('../routes/authRoutes');
+// Corrected import paths to point to the correct location
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const trendsRoutes = require('./routes/trendsRoutes');
+const journalRoutes = require('./routes/journalRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Middleware
 app.use(express.json());
 
-// Configure CORS
 const allowedOrigins = [
   'http://localhost:3000',
   'https://our-mind-bloom.netlify.app'
@@ -28,13 +29,14 @@ app.use(cors({
   }
 }));
 
-// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected successfully'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Define your API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/trends', trendsRoutes);
+app.use('/api/journal', journalRoutes);
 
 app.get('/', (req, res) => {
   res.send('MindBloom Backend is running!');
