@@ -15,9 +15,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Flower2, Loader2 } from "lucide-react";
-// Removed Firebase authentication imports
-// import { auth } from "@/lib/firebase";
-// import { signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -33,7 +30,6 @@ export default function LoginPage() {
     setLoading(true);
     
     try {
-      // Replaced Firebase with a fetch call to your custom backend
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -50,12 +46,23 @@ export default function LoginPage() {
         });
         router.push("/dashboard");
       } else {
-        // Handle login failure from the backend
-        toast({
-          title: "Login Failed",
-          description: data.message || "Invalid email or password.",
-          variant: "destructive",
-        });
+        // Check for specific backend errors to handle redirects
+        if (response.status === 401) {
+          // If the backend returns a 401, it's an "invalid email or password" error
+          toast({
+            title: "Login Failed",
+            description: "Invalid email or password.",
+            variant: "destructive",
+          });
+        } else {
+          // For other server errors, suggest a redirect to signup
+          toast({
+            title: "Server Error",
+            description: "An unexpected server error occurred. Please try again or sign up.",
+            variant: "destructive",
+          });
+          router.push("/signup"); // Redirect to the sign-up page
+        }
       }
     } catch (error: any) {
       // Handle network or other errors
