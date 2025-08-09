@@ -5,10 +5,10 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 // Corrected import paths to point to the correct location
-const authRoutes = require('.src/routes/authRoutes');
-const userRoutes = require('.src/routes/userRoutes');
-const trendsRoutes = require('.src/routes/trendsRoutes');
-const journalRoutes = require('.src/routes/journalRoutes');
+const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const trendsRoutes = require('./src/routes/trendsRoutes');
+const journalRoutes = require('./src/routes/journalRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
