@@ -1,10 +1,10 @@
-// mindbloom-frontend/postcss.config.js
+    // mindbloom-frontend/postcss.config.mjs
 
-/** @type {import('postcss-load-config').Config} */
-const config = {
-  plugins: {
-    tailwindcss: {},
-  },
-};
+    const config = {
+      plugins: {
+        tailwindcss: {},
+      },
+    };
 
-module.exports = config;
+    export default config;
+    
