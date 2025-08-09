@@ -15,26 +15,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Flower2, Loader2 } from "lucide-react";
-// REMOVED: Firebase authentication imports
-// import { auth } from "@/lib/firebase";
-// import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
 
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      // Replaced Firebase with a fetch call to your custom backend
-      const response = await fetch(`https://mind-bloom.onrender.com/api/auth/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -42,26 +38,23 @@ export default function LoginPage() {
       const data = await response.json();
       
       if (response.ok) {
-        // Handle successful login
         localStorage.setItem('token', data.token);
         toast({
-          title: "Login Successful",
-          description: "Welcome back!",
+          title: "Sign Up Successful",
+          description: "Welcome to MindBloom!",
         });
         router.push("/dashboard");
       } else {
-        // Handle login failure from the backend
         toast({
-          title: "Login Failed",
-          description: data.message || "Invalid email or password.",
+          title: "Sign Up Failed",
+          description: data.message || "An unexpected error occurred.",
           variant: "destructive",
         });
       }
     } catch (error: any) {
-      // Handle network or other errors
       console.error('API call failed:', error);
       toast({
-        title: "Login Failed",
+        title: "Sign Up Failed",
         description: "Could not connect to the server.",
         variant: "destructive",
       });
@@ -74,14 +67,14 @@ export default function LoginPage() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm">
         <Card className="shadow-2xl">
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleSignup}>
             <CardHeader className="text-center">
               <div className="mb-4 inline-block mx-auto">
                 <Flower2 className="h-10 w-10 text-primary" />
               </div>
               <CardTitle className="font-headline text-3xl">MindBloom</CardTitle>
               <CardDescription>
-                Sign in to continue your journey.
+                Create an account to start your journey.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -110,12 +103,12 @@ export default function LoginPage() {
             <CardFooter className="flex-col gap-4">
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign In
+                Sign Up
               </Button>
               <p className="text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <Link href="/signup" className="text-primary hover:underline">
-                  Sign Up
+                Already have an account?{" "}
+                <Link href="/" className="text-primary hover:underline">
+                  Sign In
                 </Link>
               </p>
             </CardFooter>
