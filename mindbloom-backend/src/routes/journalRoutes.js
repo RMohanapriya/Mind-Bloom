@@ -2,8 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const asyncHandler = require('express-async-handler');
-const { protect } = require('../src/middleware/authMiddleware'); // Corrected path
-const JournalEntry = require('../src/models/JournalEntry'); // Corrected path
+const protect = require('../../middleware/authMiddleware');
+const JournalEntry = require('../..odels/JournalEntry'); // Corrected path
 
 router.post('/', protect, asyncHandler(async (req, res) => {
     const { text, analysis } = req.body;
