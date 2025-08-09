@@ -1,3 +1,5 @@
+// mindbloom-frontend/postcss.config.js
+
 /** @type {import('postcss-load-config').Config} */
 const config = {
   plugins: {
@@ -5,4 +7,4 @@ const config = {
   },
 };
 
-export default config;
+module.exports = config;

@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Flower2, Loader2 } from "lucide-react";
-// REMOVED: Firebase authentication imports
+// Removed Firebase authentication imports
 // import { auth } from "@/lib/firebase";
 // import { signInWithEmailAndPassword } from "firebase/auth";
 import { useToast } from "@/hooks/use-toast";
